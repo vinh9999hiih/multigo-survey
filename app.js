@@ -3,6 +3,14 @@
  * Handles survey branching flow, local data persistence, analytics dashboard & CSV export.
  */
 
+// =========================================================================
+// 🔗 CẤU HÌNH GOOGLE SHEET WEBHOOK CỦA BẠN TẠI ĐÂY
+// Dán link Web App URL (Google Apps Script) của bạn vào giữa 2 dấu nháy:
+// Ví dụ: const DEFAULT_GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/.../exec";
+// Khi cấu hình ở đây, BẤT KỲ AI vào link web làm khảo sát cũng sẽ tự động gửi về Google Sheet của bạn!
+// =========================================================================
+const DEFAULT_GOOGLE_SHEET_WEBHOOK = "";
+
 // Application State
 const state = {
   currentStep: 1,
@@ -339,7 +347,7 @@ async function submitSurvey() {
   updateNavigationCount();
 
   // Send to Webhook URL if configured
-  const webhookUrl = localStorage.getItem(STORAGE_KEY_WEBHOOK);
+  const webhookUrl = DEFAULT_GOOGLE_SHEET_WEBHOOK || localStorage.getItem(STORAGE_KEY_WEBHOOK);
   if (webhookUrl && webhookUrl.startsWith('http')) {
     try {
       await fetch(webhookUrl, {
@@ -874,3 +882,4 @@ function saveSettingsModal() {
   closeSettingsModal();
   alert('Đã lưu cấu hình Google Sheet Webhook thành công!');
 }
+
