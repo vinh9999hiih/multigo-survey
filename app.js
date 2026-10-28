@@ -6,10 +6,9 @@
 // =========================================================================
 // 🔗 CẤU HÌNH GOOGLE SHEET WEBHOOK CỦA BẠN TẠI ĐÂY
 // Dán link Web App URL (Google Apps Script) của bạn vào giữa 2 dấu nháy:
-// Ví dụ: const DEFAULT_GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/.../exec";
 // Khi cấu hình ở đây, BẤT KỲ AI vào link web làm khảo sát cũng sẽ tự động gửi về Google Sheet của bạn!
 // =========================================================================
-const DEFAULT_GOOGLE_SHEET_WEBHOOK = "";
+const DEFAULT_GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzzNGzwLTqxwfo-PR6p73-qJ_-G7zOAb_qXbyycwwzy489CVUeGPRo_MlhL2AuErpl_/exec";
 
 // Application State
 const state = {
@@ -353,7 +352,7 @@ async function submitSurvey() {
       await fetch(webhookUrl, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(record)
       });
     } catch (e) {
