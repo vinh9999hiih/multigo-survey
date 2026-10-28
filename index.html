@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khảo sát Người Dùng Ứng Dụng Multigo - Giao Thông Đô Thị Thông Minh</title>
+  <meta name="description" content="Khảo sát tối ưu hóa trải nghiệm ứng dụng giao thông công cộng Multigo với luồng phân nhánh thông minh cho người đã dùng và chưa dùng.">
+  <meta name="theme-color" content="#0d9488">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230d9488'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              accent: '#06b6d4',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Chart.js for Dashboard Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all duration-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('survey')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <i class="fa-solid fa-route text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-extrabold tracking-tight font-display bg-gradient-to-r from-emerald-700 via-brand-600 to-cyan-600 bg-clip-text text-transparent">MULTIGO</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">Khảo sát 2026</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">Hệ sinh thái giao thông công cộng đô thị thông minh</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex items-center gap-2">
+        <button id="nav-survey-btn" onclick="switchView('survey')" class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-brand-600 text-white shadow-sm shadow-brand-600/30">
+          <i class="fa-solid fa-clipboard-list text-xs"></i>
+          <span>Làm Khảo Sát</span>
+        </button>
+
+        <button id="nav-dashboard-btn" onclick="switchView('dashboard')" class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200">
+          <i class="fa-solid fa-chart-pie text-xs text-brand-600"></i>
+          <span>Thống Kê <span id="nav-response-count" class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-xs font-bold">0</span></span>
+        </button>
+
+        <button id="nav-settings-btn" onclick="openSettingsModal()" title="Cài đặt kết nối Google Sheet" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-brand-600 hover:bg-slate-100 border border-slate-200 transition-all">
+          <i class="fa-solid fa-gear text-sm"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: SURVEY FLOW (FORM KHẢO SÁT CHÍNH) -->
+    <!-- ========================================== -->
+    <section id="survey-view" class="transition-opacity duration-300">
+      
+      <!-- SURVEY HERO CARD -->
+      <div class="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-brand-950/10 mb-8 relative overflow-hidden">
+        <!-- Background decorative elements -->
+        <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-brand-500/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute right-12 bottom-0 opacity-10 pointer-events-none">
+          <i class="fa-solid fa-bus-simple text-9xl"></i>
+        </div>
+
+        <div class="relative z-10 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-brand-300 text-xs font-semibold mb-4">
+            <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+            Thu Thập Ý Kiến Đóng Góp Cộng Đồng
+          </div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight font-display mb-3">
+            Khảo Sát Tối Ưu Hóa Trải Nghiệm Multigo
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-4">
+            Ý kiến của bạn là chìa khóa để Multigo cải tiến lộ trình, giờ xe chính xác, thanh toán một chạm và xây dựng trải nghiệm giao thông công cộng vượt trội cho mọi người.
+          </p>
+          <div class="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-medium">
+            <span class="flex items-center gap-1.5"><i class="fa-regular fa-clock text-brand-400"></i> Khoảng 2 - 3 phút</span>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-code-branch text-brand-400"></i> Luồng câu hỏi cá nhân hóa</span>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-brand-400"></i> 100% Ẩn danh & Bảo mật</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS TRACKER -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm mb-6">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500" id="step-badge">Bước 1 / 4: Thông tin cơ bản</span>
+          <span class="text-xs font-extrabold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full" id="progress-percent">25% Hoàn thành</span>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-brand-500 to-cyan-500 transition-all duration-500 ease-out" style="width: 25%"></div>
+        </div>
+
+        <!-- Step Indicator Dots -->
+        <div class="grid grid-cols-4 gap-2 mt-4 text-center">
+          <div class="step-indicator active" id="dot-1">
+            <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-all dot-circle">1</div>
+            <span class="text-[11px] font-semibold mt-1 block truncate">Chung</span>
+          </div>
+          <div class="step-indicator" id="dot-2">
+            <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-all dot-circle">2</div>
+            <span class="text-[11px] font-semibold mt-1 block truncate">Phân Nhánh</span>
+          </div>
+          <div class="step-indicator" id="dot-3">
+            <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-all dot-circle">3</div>
+            <span class="text-[11px] font-semibold mt-1 block truncate">Chi Tiết</span>
+          </div>
+          <div class="step-indicator" id="dot-4">
+            <div class="w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-all dot-circle">4</div>
+            <span class="text-[11px] font-semibold mt-1 block truncate">Xác Nhận</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM CONTAINER -->
+      <form id="multigo-survey-form" onsubmit="event.preventDefault();" class="space-y-6">
+
+        <!-- ============================================== -->
+        <!-- STEP 1: THÔNG TIN CHUNG (GENERAL INFORMATION) -->
+        <!-- ============================================== -->
+        <div id="step-content-1" class="step-content bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm transition-all duration-300">
+          <div class="flex items-center gap-3 pb-5 border-b border-slate-100 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-user-circle"></i>
+            </div>
+            <div>
+              <h2 class="text-lg sm:text-xl font-bold text-slate-900">Phần 1: Thông Tin Chung</h2>
+              <p class="text-xs sm:text-sm text-slate-500">Giúp Multigo hiểu rõ hơn về đối tượng hành khách tham gia khảo sát</p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            
+            <!-- Question 1.1: Họ và tên -->
+            <div>
+              <label for="input-fullname" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                1. Họ và tên của bạn <span class="text-slate-400 font-normal text-xs">(Không bắt buộc)</span>
+              </label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="input-fullname" name="fullname" placeholder="Nhập tên hoặc biệt danh của bạn..." 
+                  class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 text-sm outline-hidden transition-all bg-slate-50/50 focus:bg-white">
+              </div>
+            </div>
+
+            <!-- Question 1.2: Đối tượng / Nghề nghiệp -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-2">
+                2. Bạn hiện đang là? <span class="text-rose-500">*</span>
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="group-occupation">
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="occupation" value="Học sinh / Sinh viên" class="w-4 h-4 text-brand-600 focus:ring-brand-500 border-slate-300">
+                  <span class="text-sm font-medium text-slate-700"><i class="fa-solid fa-graduation-cap text-brand-600 mr-1.5"></i> Học sinh / Sinh viên</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="occupation" value="Nhân viên văn phòng" class="w-4 h-4 text-brand-600 focus:ring-brand-500 border-slate-300">
+                  <span class="text-sm font-medium text-slate-700"><i class="fa-solid fa-briefcase text-brand-600 mr-1.5"></i> Nhân viên văn phòng</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="occupation" value="Kinh doanh / Tự do" class="w-4 h-4 text-brand-600 focus:ring-brand-500 border-slate-300">
+                  <span class="text-sm font-medium text-slate-700"><i class="fa-solid fa-laptop-code text-brand-600 mr-1.5"></i> Kinh doanh / Tự do</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="occupation" value="Khác" class="w-4 h-4 text-brand-600 focus:ring-brand-500 border-slate-300">
+                  <span class="text-sm font-medium text-slate-700"><i class="fa-solid fa-ellipsis text-brand-600 mr-1.5"></i> Ngành nghề khác</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question 1.3: Độ tuổi -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-2">
+                3. Nhóm độ tuổi của bạn? <span class="text-rose-500">*</span>
+              </label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="group-age">
+                <label class="choice-card flex items-center justify-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all text-center">
+                  <input type="radio" name="age_group" value="Dưới 18 tuổi" class="sr-only">
+                  <span class="text-xs sm:text-sm font-medium text-slate-700 label-text">Dưới 18 tuổi</span>
+                </label>
+                <label class="choice-card flex items-center justify-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all text-center">
+                  <input type="radio" name="age_group" value="18 - 24 tuổi" class="sr-only">
+                  <span class="text-xs sm:text-sm font-medium text-slate-700 label-text">18 - 24 tuổi</span>
+                </label>
+                <label class="choice-card flex items-center justify-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all text-center">
+                  <input type="radio" name="age_group" value="25 - 35 tuổi" class="sr-only">
+                  <span class="text-xs sm:text-sm font-medium text-slate-700 label-text">25 - 35 tuổi</span>
+                </label>
+                <label class="choice-card flex items-center justify-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all text-center">
+                  <input type="radio" name="age_group" value="Trên 35 tuổi" class="sr-only">
+                  <span class="text-xs sm:text-sm font-medium text-slate-700 label-text">Trên 35 tuổi</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question 1.4: Thói quen đi lại -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-2">
+                4. Thói quen sử dụng phương tiện công cộng (Xe buýt, Tàu điện Metro...)? <span class="text-rose-500">*</span>
+              </label>
+              <div class="space-y-2.5" id="group-frequency-transit">
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="transit_habit" value="Hàng ngày (Đi học / Đi làm)" class="w-4 h-4 text-brand-600">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-800">Hàng ngày (Đi học / Đi làm)</div>
+                    <div class="text-xs text-slate-500">Là phương tiện di chuyển chính mỗi ngày của tôi</div>
+                  </div>
+                </label>
+
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="transit_habit" value="Thường xuyên (3 - 4 lần / tuần)" class="w-4 h-4 text-brand-600">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-800">Thường xuyên (3 - 4 lần / tuần)</div>
+                    <div class="text-xs text-slate-500">Đi lại định kỳ vài ngày trong tuần</div>
+                  </div>
+                </label>
+
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="transit_habit" value="Thỉnh thoảng (1 - 2 lần / tuần hoặc khi cần)" class="w-4 h-4 text-brand-600">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-800">Thỉnh thoảng (1 - 2 lần / tuần)</div>
+                    <div class="text-xs text-slate-500">Khi xe cá nhân sửa, trời mưa hoặc đi xa</div>
+                  </div>
+                </label>
+
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all">
+                  <input type="radio" name="transit_habit" value="Hiếm khi hoặc Chưa từng đi" class="w-4 h-4 text-brand-600">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-800">Hiếm khi hoặc Chưa từng đi</div>
+                    <div class="text-xs text-slate-500">Chủ yếu sử dụng xe máy cá nhân, xe ôm công nghệ hoặc ô tô</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-8 pt-5 border-t border-slate-100 flex justify-end">
+            <button type="button" onclick="validateAndGoToStep(2)" class="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/20 transition-all transform active:scale-95">
+              <span>Tiếp Tục (Câu Hỏi Lọc)</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- STEP 2: CÂU HỎI LỌC QUAN TRỌNG NHẤT (SCREENER QUESTION) -->
+        <!-- ======================================================= -->
+        <div id="step-content-2" class="step-content hidden bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm transition-all duration-300">
+          <div class="flex items-center gap-3 pb-5 border-b border-slate-100 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-filter"></i>
+            </div>
+            <div>
+              <h2 class="text-lg sm:text-xl font-bold text-slate-900">Phần 2: Câu Hỏi Lọc Trọng Tâm</h2>
+              <p class="text-xs sm:text-sm text-slate-500">Hệ thống sẽ tự động điều hướng bộ câu hỏi phù hợp nhất với trải nghiệm của bạn</p>
+            </div>
+          </div>
+
+          <!-- Highlight Alert Box -->
+          <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 mb-6 flex items-start gap-3 text-xs sm:text-sm text-amber-900">
+            <i class="fa-solid fa-lightbulb text-amber-500 mt-0.5 text-base"></i>
+            <p>
+              <strong>Giải pháp tối ưu hóa khảo sát Multigo:</strong> Chúng tôi phân tách riêng biệt giữa người <strong>ĐÃ TỪNG DÙNG</strong> (để đánh giá tính năng thực tế) và người <strong>CHƯA TỪNG DÙNG</strong> (để lắng nghe kỳ vọng & lý do), tránh gây nhầm lẫn hay bỏ cuộc.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-base sm:text-lg font-bold text-slate-900 mb-4 text-center sm:text-left">
+              Bạn đã từng tải hoặc sử dụng ứng dụng Multigo chưa? <span class="text-rose-500">*</span>
+            </label>
+
+            <!-- 2 Big Branching Option Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="group-screener">
+              
+              <!-- BRANCH A OPTION -->
+              <div onclick="selectScreenerOption('used')" id="card-branch-used" class="screener-card p-6 rounded-2xl border-2 border-slate-200 hover:border-brand-500 cursor-pointer transition-all duration-200 flex flex-col justify-between group relative overflow-hidden bg-slate-50/30 hover:bg-brand-50/20">
+                <input type="radio" name="multigo_used" value="yes" class="sr-only" id="radio-used-yes">
+                
+                <div class="flex items-start justify-between mb-4">
+                  <div class="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                  </div>
+                  <span class="badge-branch text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-100 text-brand-800 border border-brand-200">
+                    NHÁNH A
+                  </span>
+                </div>
+
+                <div>
+                  <h3 class="text-lg font-bold text-slate-900 mb-1.5 flex items-center gap-2">
+                    Tôi ĐÃ TỪNG tải / Đang sử dụng
+                    <i class="fa-solid fa-check-circle text-brand-600 opacity-0 check-indicator transition-opacity"></i>
+                  </h3>
+                  <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    Bạn đã từng cài đặt Multigo trên điện thoại và trải nghiệm tra cứu xe buýt, mua vé hoặc theo dõi chuyến đi.
+                  </p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-brand-700">
+                  <span>Khảo sát: Đánh giá chất lượng & báo lỗi</span>
+                  <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </div>
+              </div>
+
+              <!-- BRANCH B OPTION -->
+              <div onclick="selectScreenerOption('not_used')" id="card-branch-not-used" class="screener-card p-6 rounded-2xl border-2 border-slate-200 hover:border-cyan-500 cursor-pointer transition-all duration-200 flex flex-col justify-between group relative overflow-hidden bg-slate-50/30 hover:bg-cyan-50/20">
+                <input type="radio" name="multigo_used" value="no" class="sr-only" id="radio-used-no">
+
+                <div class="flex items-start justify-between mb-4">
+                  <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-compass"></i>
+                  </div>
+                  <span class="badge-branch text-[11px] font-bold px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
+                    NHÁNH B
+                  </span>
+                </div>
+
+                <div>
+                  <h3 class="text-lg font-bold text-slate-900 mb-1.5 flex items-center gap-2">
+                    Tôi CHƯA TỪNG tải hoặc sử dụng
+                    <i class="fa-solid fa-check-circle text-cyan-600 opacity-0 check-indicator transition-opacity"></i>
+                  </h3>
+                  <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    Bạn chưa biết tới Multigo, đang dùng ứng dụng khác (BusMap, Google Maps) hoặc chưa có nhu cầu sử dụng.
+                  </p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-cyan-700">
+                  <span>Khảo sát: Nhu cầu thị trường & Kỳ vọng</span>
+                  <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Dynamic Branch Note -->
+            <div id="branch-hint-text" class="hidden mt-4 p-3 rounded-xl bg-slate-100 text-xs text-slate-600 text-center animate-fade-in">
+              <!-- Text updated by JS -->
+            </div>
+          </div>
+
+          <div class="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
+            <button type="button" onclick="goToStep(1)" class="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>Quay Lại</span>
+            </button>
+            <button type="button" onclick="validateAndGoToStep(3)" class="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/20 transition-all transform active:scale-95">
+              <span>Đến Câu Hỏi Chuyên Sâu</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- STEP 3A: DÀNH CHO NGƯỜI ĐÃ DÙNG (NHÁNH A - ĐÁNH GIÁ) -->
+        <!-- ===================================================== -->
+        <div id="step-content-3-branch-a" class="step-content hidden bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm transition-all duration-300">
+          
+          <div class="flex items-center justify-between pb-5 border-b border-slate-100 mb-6">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-star"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-lg sm:text-xl font-bold text-slate-900">Phần 3A: Đánh Giá Trải Nghiệm Multigo</h2>
+                  <span class="px-2 py-0.5 rounded-full bg-brand-100 text-brand-800 text-[10px] font-bold">Người Đã Dùng</span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-500">Giúp đội ngũ phát triển tối ưu các tính năng còn tồn tại</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-7">
+            
+            <!-- Question A1: Tần suất mở app -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-2">
+                1. Bạn mở ứng dụng Multigo với tần suất nào? <span class="text-rose-500">*</span>
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="radio" name="a_open_frequency" value="Hàng ngày (Nhiều lần trong ngày)" class="w-4 h-4 text-brand-600">
+                  <span class="text-sm text-slate-700 font-medium">Mỗi ngày (Nhiều lần trong ngày)</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="radio" name="a_open_frequency" value="3 - 5 lần một tuần" class="w-4 h-4 text-brand-600">
+                  <span class="text-sm text-slate-700 font-medium">3 - 5 lần một tuần</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="radio" name="a_open_frequency" value="1 - 2 lần một tuần" class="w-4 h-4 text-brand-600">
+                  <span class="text-sm text-slate-700 font-medium">1 - 2 lần một tuần</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="radio" name="a_open_frequency" value="Hiếm khi / Vài tuần một lần" class="w-4 h-4 text-brand-600">
+                  <span class="text-sm text-slate-700 font-medium">Hiếm khi / Vài tuần một lần</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question A2: Tính năng yêu thích -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1">
+                2. Tính năng nào bạn thường dùng hoặc thấy hữu ích nhất? <span class="text-slate-400 text-xs font-normal">(Chọn nhiều đáp án)</span>
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2">
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="checkbox" name="a_features" value="Tra cứu lộ trình & trạm dừng" class="w-4 h-4 rounded-sm text-brand-600">
+                  <span class="text-sm text-slate-700">Tra cứu lộ trình & trạm dừng</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="checkbox" name="a_features" value="Xem vị trí xe bus di chuyển trực tiếp trên GPS" class="w-4 h-4 rounded-sm text-brand-600">
+                  <span class="text-sm text-slate-700">Xem xe chạy trực tiếp trên bản đồ GPS</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="checkbox" name="a_features" value="Dự báo giờ xe đến trạm theo thời gian thực" class="w-4 h-4 rounded-sm text-brand-600">
+                  <span class="text-sm text-slate-700">Dự báo giờ xe đến trạm thời gian thực</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="checkbox" name="a_features" value="Xác thực sinh viên & mua vé tháng" class="w-4 h-4 rounded-sm text-brand-600">
+                  <span class="text-sm text-slate-700">Xác thực sinh viên & mua vé ưu đãi</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="checkbox" name="a_features" value="Thanh toán vé điện tử không tiền mặt (QR Code)" class="w-4 h-4 rounded-sm text-brand-600">
+                  <span class="text-sm text-slate-700">Thanh toán vé điện tử QR Code</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="checkbox" name="a_features" value="Thông báo chuông xe sắp tới trạm" class="w-4 h-4 rounded-sm text-brand-600">
+                  <span class="text-sm text-slate-700">Thông báo chuông khi xe sắp tới điểm đón</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question A3: Mức độ đồng ý nhận định (Likert Scale Star) -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1">
+                3. Đánh giá mức độ hài lòng của bạn theo từng tiêu chí: <span class="text-rose-500">*</span>
+              </label>
+              <p class="text-xs text-slate-500 mb-3">(Thang điểm từ 1 Sao: Rất tệ đến 5 Sao: Cực kỳ hài lòng)</p>
+
+              <div class="space-y-3 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
+                
+                <!-- Criteria 1 -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 border-b border-slate-200/60">
+                  <span class="text-sm font-medium text-slate-700">Giờ xe đến trên app khớp với thực tế ngoài trạm:</span>
+                  <div class="star-rating flex items-center gap-1" data-rating-id="rating_time_accuracy">
+                    <!-- 5 stars -->
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="1"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="2"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="3"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="4"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="5"><i class="fa-solid fa-star"></i></button>
+                    <input type="hidden" name="rating_time_accuracy" value="4">
+                  </div>
+                </div>
+
+                <!-- Criteria 2 -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 border-b border-slate-200/60">
+                  <span class="text-sm font-medium text-slate-700">Độ tin cậy của vị trí xe hiển thị trên bản đồ:</span>
+                  <div class="star-rating flex items-center gap-1" data-rating-id="rating_gps_accuracy">
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="1"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="2"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="3"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="4"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="5"><i class="fa-solid fa-star"></i></button>
+                    <input type="hidden" name="rating_gps_accuracy" value="4">
+                  </div>
+                </div>
+
+                <!-- Criteria 3 -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 border-b border-slate-200/60">
+                  <span class="text-sm font-medium text-slate-700">Quy trình xác thực sinh viên & thanh toán vé:</span>
+                  <div class="star-rating flex items-center gap-1" data-rating-id="rating_payment_convenience">
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="1"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="2"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="3"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="4"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="5"><i class="fa-solid fa-star"></i></button>
+                    <input type="hidden" name="rating_payment_convenience" value="5">
+                  </div>
+                </div>
+
+                <!-- Criteria 4 -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2">
+                  <span class="text-sm font-medium text-slate-700">Độ mượt mà và dễ dùng của giao diện ứng dụng:</span>
+                  <div class="star-rating flex items-center gap-1" data-rating-id="rating_ui_ux">
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="1"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="2"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="3"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="4"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" class="star-btn text-xl text-slate-300 hover:text-amber-400 transition-colors" data-value="5"><i class="fa-solid fa-star"></i></button>
+                    <input type="hidden" name="rating_ui_ux" value="4">
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Question A4: Vấn đề / lỗi gặp phải -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1">
+                4. Bạn từng gặp vấn đề hoặc lỗi nào khi sử dụng Multigo? <span class="text-slate-400 text-xs font-normal">(Chọn nhiều đáp án)</span>
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2">
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-rose-400 transition-all">
+                  <input type="checkbox" name="a_issues" value="App bị giật lag hoặc bị văng (crash)" class="w-4 h-4 rounded-sm text-rose-600">
+                  <span class="text-sm text-slate-700">App thỉnh thoảng bị lag hoặc tự văng</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-rose-400 transition-all">
+                  <input type="checkbox" name="a_issues" value="Định vị GPS bị lệch hoặc nhảy trạm" class="w-4 h-4 rounded-sm text-rose-600">
+                  <span class="text-sm text-slate-700">Vị trí GPS lệch hoặc nhảy trạm</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-rose-400 transition-all">
+                  <input type="checkbox" name="a_issues" value="Giờ xe đến sai lệch so với thực tế" class="w-4 h-4 rounded-sm text-rose-600">
+                  <span class="text-sm text-slate-700">Giờ xe đến trễ/sớm hơn thực tế</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-rose-400 transition-all">
+                  <input type="checkbox" name="a_issues" value="Lỗi xác thực thông tin sinh viên" class="w-4 h-4 rounded-sm text-rose-600">
+                  <span class="text-sm text-slate-700">Xác thực sinh viên duyệt chậm/lỗi</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-rose-400 transition-all">
+                  <input type="checkbox" name="a_issues" value="Tiêu tốn pin và dữ liệu di động" class="w-4 h-4 rounded-sm text-rose-600">
+                  <span class="text-sm text-slate-700">Tiêu tốn pin hoặc mạng 4G</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 transition-all">
+                  <input type="checkbox" name="a_issues" value="Chưa từng gặp lỗi, dùng mượt mà" class="w-4 h-4 rounded-sm text-brand-600">
+                  <span class="text-sm text-slate-700 font-semibold text-brand-700">Chưa từng gặp lỗi, app rất ổn định</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question A5: Đóng góp ý kiến cải tiến -->
+            <div>
+              <label for="textarea-a-feedback" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                5. Bạn có đề xuất tính năng nào muốn Multigo bổ sung thêm không?
+              </label>
+              <textarea id="textarea-a-feedback" name="a_feedback" rows="3" placeholder="Ví dụ: Thêm gợi ý tuyến tránh kẹt xe, thêm vé tháng liên tuyến bus + metro..." 
+                class="w-full p-4 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 text-sm outline-hidden transition-all bg-slate-50/50 focus:bg-white"></textarea>
+            </div>
+
+          </div>
+
+          <div class="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
+            <button type="button" onclick="goToStep(2)" class="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>Quay Lại</span>
+            </button>
+            <button type="button" onclick="validateAndGoToStep(4)" class="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/20 transition-all transform active:scale-95">
+              <span>Xem Lại & Hoàn Tất</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- STEP 3B: DÀNH CHO NGƯỜI CHƯA DÙNG (NHÁNH B - NGHIÊN CỨU) -->
+        <!-- ======================================================== -->
+        <div id="step-content-3-branch-b" class="step-content hidden bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm transition-all duration-300">
+          
+          <div class="flex items-center justify-between pb-5 border-b border-slate-100 mb-6">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-compass"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-lg sm:text-xl font-bold text-slate-900">Phần 3B: Nhu Cầu & Kỳ Vọng Của Bạn</h2>
+                  <span class="px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 text-[10px] font-bold">Người Chưa Tải App</span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-500">Multigo muốn lắng nghe nhu cầu của bạn để tạo nên giải pháp hoàn thiện nhất</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-7">
+            
+            <!-- Question B1: Lý do chưa từng sử dụng Multigo -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-2">
+                1. Lý do lớn nhất khiến bạn chưa từng sử dụng ứng dụng Multigo? <span class="text-rose-500">*</span>
+              </label>
+              <div class="space-y-2.5">
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_reason_not_used" value="Chưa từng biết đến ứng dụng Multigo" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Chưa từng nghe nói hoặc biết đến sự tồn tại của Multigo</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_reason_not_used" value="Đang quen dùng ứng dụng khác (BusMap, Google Maps, Grab...)" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Đang quen dùng ứng dụng khác (BusMap, Google Maps...)</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_reason_not_used" value="Không có nhu cầu đi xe buýt hay phương tiện công cộng" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Không có nhu cầu đi xe buýt hay phương tiện công cộng</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_reason_not_used" value="Ngại cài thêm app vì sợ tốn dung lượng hoặc phức tạp" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Ngại cài thêm app vì sợ nặng máy hoặc giao diện khó dùng</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question B2: Yếu tố quan tâm nhất ở một ứng dụng giao thông công cộng -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1">
+                2. Bạn quan tâm nhất điều gì ở một ứng dụng giao thông công cộng? <span class="text-slate-400 text-xs font-normal">(Chọn tối đa 3 yếu tố)</span>
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2">
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="checkbox" name="b_concerns" value="Giờ xe đến chính xác theo thời gian thực" class="w-4 h-4 rounded-sm text-cyan-600">
+                  <span class="text-sm text-slate-700">Giờ xe đến trạm chính xác thực tế</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="checkbox" name="b_concerns" value="Giá vé rẻ, có mã giảm giá khuyến mãi" class="w-4 h-4 rounded-sm text-cyan-600">
+                  <span class="text-sm text-slate-700">Giá vé rẻ, nhiều khuyến mãi ưu đãi</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="checkbox" name="b_concerns" value="Thông báo nhắc xe sắp đến đúng lúc" class="w-4 h-4 rounded-sm text-cyan-600">
+                  <span class="text-sm text-slate-700">Thông báo nhắc xe chuẩn giờ đón</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="checkbox" name="b_concerns" value="Giao diện đơn giản, dễ tìm trạm và tuyến" class="w-4 h-4 rounded-sm text-cyan-600">
+                  <span class="text-sm text-slate-700">Giao diện sạch sẽ, dễ tìm đường</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="checkbox" name="b_concerns" value="Thanh toán vé 1 chạm không cần tiền mặt" class="w-4 h-4 rounded-sm text-cyan-600">
+                  <span class="text-sm text-slate-700">Thanh toán vé QR không dùng tiền lẻ</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="checkbox" name="b_concerns" value="Tích hợp đa phương tiện kết hợp Bus + Metro" class="w-4 h-4 rounded-sm text-cyan-600">
+                  <span class="text-sm text-slate-700">Gợi ý chuyển tuyến Bus + Metro thông minh</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question B3: Điều gì sẽ thuyết phục bạn tải Multigo -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-2">
+                3. Điều gì sẽ thuyết phục bạn tải và trải nghiệm một ứng dụng mới như Multigo? <span class="text-rose-500">*</span>
+              </label>
+              <div class="space-y-2.5">
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_incentive" value="Tặng mã giảm giá / Miễn phí vé trải nghiệm đầu tiên" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Tặng mã giảm giá / Vé xe miễn phí trải nghiệm</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_incentive" value="Được bạn bè, đồng nghiệp hoặc nhóm sinh viên giới thiệu" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Được bạn bè, hội nhóm sinh viên đánh giá tốt và giới thiệu</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_incentive" value="Tính năng tìm đường và dự báo giờ xe thông minh vượt trội" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Độ chính xác giờ xe và bản đồ GPS vượt trội hơn các app cũ</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 transition-all">
+                  <input type="radio" name="b_incentive" value="Không có quảng cáo gây phiền và thao tác mượt mà" class="w-4 h-4 text-cyan-600">
+                  <span class="text-sm text-slate-700 font-medium">Không chèn quảng cáo khó chịu, app mượt mà nhẹ máy</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question B4: Khó khăn thường gặp khi dùng phương tiện công cộng nói chung -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1">
+                4. Bạn thường gặp khó khăn gì nhất khi sử dụng phương tiện giao thông công cộng nói chung?
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2">
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 transition-all">
+                  <input type="checkbox" name="b_pain_points" value="Chờ xe quá lâu và không biết khi nào xe đến" class="w-4 h-4 rounded-sm text-amber-600">
+                  <span class="text-sm text-slate-700">Chờ xe quá lâu, không biết xe sắp đến hay chưa</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 transition-all">
+                  <input type="checkbox" name="b_pain_points" value="Trạm dừng quá xa nơi ở hoặc điểm cần đến" class="w-4 h-4 rounded-sm text-amber-600">
+                  <span class="text-sm text-slate-700">Trạm dừng quá xa điểm xuất phát hoặc điểm đến</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 transition-all">
+                  <input type="checkbox" name="b_pain_points" value="Khó khăn trong việc tìm tuyến chuyển tiếp" class="w-4 h-4 rounded-sm text-amber-600">
+                  <span class="text-sm text-slate-700">Bối rối khi phải đổi xe hoặc chuyển tuyến</span>
+                </label>
+                <label class="choice-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 transition-all">
+                  <input type="checkbox" name="b_pain_points" value="Bất tiện khi chuẩn bị tiền lẻ trả vé" class="w-4 h-4 rounded-sm text-amber-600">
+                  <span class="text-sm text-slate-700">Bất tiện khi chuẩn bị tiền lẻ để mua vé</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Question B5: Đề xuất mong muốn -->
+            <div>
+              <label for="textarea-b-wish" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                5. Bạn kỳ vọng điều gì nhất ở một giải pháp giao thông công cộng thông minh tương lai?
+              </label>
+              <textarea id="textarea-b-wish" name="b_wish" rows="3" placeholder="Chia sẻ góc nhìn hoặc mong muốn của bạn với Multigo..." 
+                class="w-full p-4 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 text-sm outline-hidden transition-all bg-slate-50/50 focus:bg-white"></textarea>
+            </div>
+
+          </div>
+
+          <div class="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
+            <button type="button" onclick="goToStep(2)" class="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>Quay Lại</span>
+            </button>
+            <button type="button" onclick="validateAndGoToStep(4)" class="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-sm shadow-md shadow-cyan-600/20 transition-all transform active:scale-95">
+              <span>Xem Lại & Hoàn Tất</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- STEP 4: TÓM TẮT & XÁC NHẬN GỬI (SUBMISSION)    -->
+        <!-- ============================================== -->
+        <div id="step-content-4" class="step-content hidden bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm transition-all duration-300">
+          
+          <div class="flex items-center gap-3 pb-5 border-b border-slate-100 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-check-double"></i>
+            </div>
+            <div>
+              <h2 class="text-lg sm:text-xl font-bold text-slate-900">Phần 4: Xác Nhận & Gửi Khảo Sát</h2>
+              <p class="text-xs sm:text-sm text-slate-500">Xem lại tóm tắt câu trả lời trước khi gửi</p>
+            </div>
+          </div>
+
+          <!-- Summary Review Box -->
+          <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4 mb-6">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-regular fa-file-lines text-brand-600"></i>
+              Tóm Tắt Phản Hồi Của Bạn
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+              <div class="p-3 bg-white rounded-xl border border-slate-200/70">
+                <span class="text-slate-400 block text-xs mb-0.5">Người tham gia:</span>
+                <span class="font-semibold text-slate-800" id="summary-name">Ẩn danh</span>
+              </div>
+              <div class="p-3 bg-white rounded-xl border border-slate-200/70">
+                <span class="text-slate-400 block text-xs mb-0.5">Nghề nghiệp:</span>
+                <span class="font-semibold text-slate-800" id="summary-occupation">--</span>
+              </div>
+              <div class="p-3 bg-white rounded-xl border border-slate-200/70">
+                <span class="text-slate-400 block text-xs mb-0.5">Độ tuổi:</span>
+                <span class="font-semibold text-slate-800" id="summary-age">--</span>
+              </div>
+              <div class="p-3 bg-white rounded-xl border border-slate-200/70">
+                <span class="text-slate-400 block text-xs mb-0.5">Nhóm khảo sát:</span>
+                <span class="font-bold text-brand-700" id="summary-branch">--</span>
+              </div>
+            </div>
+
+            <!-- Key Highlight Box -->
+            <div class="p-3.5 bg-brand-50/70 rounded-xl border border-brand-200 text-xs sm:text-sm text-brand-900 flex items-start gap-2.5">
+              <i class="fa-solid fa-gift text-brand-600 mt-0.5 text-base"></i>
+              <div>
+                <strong>Cảm ơn bạn đã dành thời gian!</strong> Câu trả lời của bạn sẽ giúp đội ngũ Multigo xây dựng giải pháp giao thông tốt hơn mỗi ngày.
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex items-center justify-between pt-2">
+            <button type="button" onclick="goToStep(3)" class="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>Sửa Lại</span>
+            </button>
+            <button type="button" id="submit-btn" onclick="submitSurvey()" class="btn-submit inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-700 hover:to-teal-700 text-white font-bold text-sm sm:text-base shadow-lg shadow-brand-600/30 transition-all transform active:scale-95">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Gửi Khảo Sát Ngay</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SUCCESS COMPLETION CARD (HIỂN THỊ SAU KHI GỬI) -->
+        <!-- ============================================== -->
+        <div id="survey-success-card" class="hidden bg-white rounded-3xl p-8 sm:p-12 border border-brand-200 shadow-xl text-center">
+          <div class="w-20 h-20 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner animate-bounce">
+            <i class="fa-solid fa-check"></i>
+          </div>
+
+          <span class="inline-block px-3 py-1 rounded-full bg-brand-50 text-brand-700 font-bold text-xs uppercase tracking-wider mb-2">Thành Công!</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display mb-3">
+            Gửi Khảo Sát Thành Công
+          </h2>
+          <p class="text-slate-600 text-sm sm:text-base max-w-lg mx-auto mb-6">
+            Multigo xin chân thành cảm ơn những ý kiến đóng góp quý báu của bạn! Phản hồi của bạn đã được ghi nhận vào hệ thống an toàn.
+          </p>
+
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 max-w-sm mx-auto mb-8 text-xs text-slate-500">
+            <div class="flex justify-between items-center mb-1">
+              <span>Mã phản hồi (Survey ID):</span>
+              <span class="font-mono font-bold text-slate-800" id="success-survey-id">MG-XXXXXX</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Thời gian ghi nhận:</span>
+              <span class="font-medium text-slate-800" id="success-timestamp">Vừa xong</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <button onclick="resetSurveyForm()" class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all inline-flex items-center gap-2">
+              <i class="fa-solid fa-rotate-left text-xs"></i>
+              <span>Làm Khảo Sát Khác</span>
+            </button>
+            <button onclick="switchView('dashboard')" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/20 transition-all inline-flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-xs"></i>
+              <span>Xem Thống Kê Phân Tích</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- VIEW 2: DASHBOARD / ANALYTICS (THỐNG KÊ KẾT QUẢ) -->
+    <!-- ============================================== -->
+    <section id="dashboard-view" class="hidden transition-opacity duration-300 space-y-6">
+      
+      <!-- DASHBOARD HEADER -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Bảng Điều Khiển Khảo Sát</span>
+          </div>
+          <h2 class="text-2xl font-extrabold text-slate-900 font-display">Phân Tích Dữ Liệu Multigo</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Tổng hợp phản hồi thời gian thực từ cộng đồng người dùng</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="addMockData()" class="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-all">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+            <span>+ 10 Dữ Liệu Mẫu</span>
+          </button>
+
+          <button onclick="exportToCSV()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm transition-all">
+            <i class="fa-solid fa-file-excel text-emerald-400"></i>
+            <span>Xuất File CSV / Excel</span>
+          </button>
+
+          <button onclick="clearAllResponses()" class="px-3 py-2 rounded-xl hover:bg-rose-50 text-rose-600 text-xs font-semibold inline-flex items-center gap-1 transition-all" title="Xóa tất cả dữ liệu">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI METRIC CARDS -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Metric 1 -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Tổng Phản Hồi</span>
+            <i class="fa-solid fa-users text-brand-600 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display" id="metric-total">0</div>
+          <div class="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
+            <i class="fa-solid fa-arrow-up text-[9px]"></i> Cập nhật thời gian thực
+          </div>
+        </div>
+
+        <!-- Metric 2 -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Đã Từng Dùng</span>
+            <i class="fa-solid fa-mobile-screen-button text-emerald-600 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-brand-700 font-display" id="metric-used">0</div>
+          <div class="text-[11px] text-slate-500 font-medium mt-1" id="metric-used-pct">0% tổng số</div>
+        </div>
+
+        <!-- Metric 3 -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Chưa Từng Dùng</span>
+            <i class="fa-solid fa-compass text-cyan-600 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-cyan-700 font-display" id="metric-not-used">0</div>
+          <div class="text-[11px] text-slate-500 font-medium mt-1" id="metric-not-used-pct">0% tiềm năng</div>
+        </div>
+
+        <!-- Metric 4 -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Điểm Hài Lòng TB</span>
+            <i class="fa-solid fa-star text-amber-500 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-amber-500 font-display" id="metric-rating">4.2 ⭐</div>
+          <div class="text-[11px] text-slate-500 font-medium mt-1">Dựa trên thang điểm 5 sao</div>
+        </div>
+      </div>
+
+      <!-- CHARTS SECTION -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Chart 1: Tỷ lệ phân nhánh -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-brand-600"></i>
+              Tỷ Lệ Đã Dùng vs Chưa Dùng App
+            </h3>
+            <span class="text-xs text-slate-400">Biểu đồ tròn</span>
+          </div>
+          <div class="flex-1 flex items-center justify-center min-h-[260px] relative">
+            <canvas id="chart-branch-ratio"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Lý do chưa dùng (Nhánh B) -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-chart-simple text-cyan-600"></i>
+              Lý Do Chưa Dùng Multigo (Nhánh B)
+            </h3>
+            <span class="text-xs text-slate-400">Top rào cản</span>
+          </div>
+          <div class="flex-1 flex items-center justify-center min-h-[260px] relative">
+            <canvas id="chart-reasons"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE OF RESPONSES -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Danh Sách Phản Hồi Chi Tiết</h3>
+            <p class="text-xs text-slate-500">Hiển thị các câu trả lời gần nhất</p>
+          </div>
+
+          <!-- Filter -->
+          <div class="flex items-center gap-2">
+            <select id="table-filter" onchange="renderResponsesTable()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 outline-hidden">
+              <option value="all">Tất cả phản hồi</option>
+              <option value="used">Chỉ người ĐÃ DÙNG (Nhánh A)</option>
+              <option value="not_used">Chỉ người CHƯA DÙNG (Nhánh B)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead class="bg-slate-50/75 border-b border-slate-200/80 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+              <tr>
+                <th class="py-3 px-4">Thời Gian</th>
+                <th class="py-3 px-4">Họ Tên</th>
+                <th class="py-3 px-4">Đối Tượng</th>
+                <th class="py-3 px-4">Độ Tuổi</th>
+                <th class="py-3 px-4">Nhánh</th>
+                <th class="py-3 px-4">Điểm / Lý Do Chính</th>
+                <th class="py-3 px-4">Góp Ý</th>
+              </tr>
+            </thead>
+            <tbody id="responses-table-body" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="table-empty-state" class="py-12 text-center text-slate-400">
+          <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
+          <p class="text-sm font-medium">Chưa có dữ liệu phản hồi nào</p>
+          <p class="text-xs text-slate-400 mt-1">Hãy nhấn "Làm Khảo Sát" hoặc bấm "+ 10 Dữ Liệu Mẫu" để trải nghiệm</p>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CÀI ĐẶT WEBHOOK GOOGLE SHEET        -->
+  <!-- ========================================== -->
+  <div id="settings-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-scale-up">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-file-excel"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Đồng Bộ Với Google Sheets</h3>
+            <p class="text-xs text-slate-500">Tự động lưu câu trả lời vào Google Sheet cá nhân</p>
+          </div>
+        </div>
+        <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-600">
+        <p>
+          Bạn có thể gắn đường link <strong>Google Apps Script Web App</strong> để mỗi khi có người làm khảo sát trên GitHub Pages, dữ liệu sẽ tự động đẩy về Google Sheet của bạn.
+        </p>
+
+        <div>
+          <label class="block font-semibold text-slate-800 mb-1.5">Web App URL (Google Apps Script):</label>
+          <input type="url" id="setting-sheet-url" placeholder="https://script.google.com/macros/s/..." 
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs outline-hidden focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 font-mono">
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-500">
+          <div class="font-bold text-slate-700 mb-1 flex items-center gap-1">
+            <i class="fa-solid fa-circle-info text-brand-600"></i> Hướng dẫn tạo Webhook:
+          </div>
+          Mở Google Sheet -> Tiện ích mở rộng (Extensions) -> Apps Script -> Dán mã từ file <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-800">google-apps-script.js</code> -> Triển khai (Deploy) làm Web App với quyền truy cập "Anyone".
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">Đóng</button>
+        <button onclick="saveSettingsModal()" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-md shadow-brand-600/20">Lưu Cấu Hình</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-auto border-t border-slate-200/80 bg-white py-6">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-700">Multigo Survey Web</span>
+        <span>•</span>
+        <span>Sẵn sàng đẩy lên GitHub Pages</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-slate-400">Khảo sát tối ưu hóa luồng phân nhánh thông minh</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Logic Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

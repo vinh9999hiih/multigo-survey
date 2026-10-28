@@ -1,0 +1,162 @@
+/* Custom styles for Multigo Survey */
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Choice Cards (Radio & Checkbox selections) */
+.choice-card {
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+
+.choice-card:hover {
+  transform: translateY(-1px);
+}
+
+.choice-card.selected-radio {
+  border-color: #059669 !important;
+  background-color: #ecfdf5 !important;
+  box-shadow: 0 0 0 1px #059669;
+}
+
+.choice-card.selected-radio .label-text {
+  color: #065f46;
+  font-weight: 700;
+}
+
+/* Screener branch cards */
+.screener-card {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.screener-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08);
+}
+
+.screener-card.active-branch-used {
+  border-color: #059669 !important;
+  background-color: #ecfdf5 !important;
+  box-shadow: 0 0 0 2px #059669, 0 10px 20px -5px rgba(5, 150, 105, 0.15) !important;
+}
+
+.screener-card.active-branch-used .check-indicator {
+  opacity: 1 !important;
+}
+
+.screener-card.active-branch-not-used {
+  border-color: #0891b2 !important;
+  background-color: #ecfeff !important;
+  box-shadow: 0 0 0 2px #0891b2, 0 10px 20px -5px rgba(8, 145, 178, 0.15) !important;
+}
+
+.screener-card.active-branch-not-used .check-indicator {
+  opacity: 1 !important;
+}
+
+/* Step Indicator Dots */
+.step-indicator .dot-circle {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+.step-indicator.active .dot-circle {
+  background-color: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+}
+
+.step-indicator.completed .dot-circle {
+  background-color: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.step-indicator span {
+  color: #94a3b8;
+}
+
+.step-indicator.active span {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.step-indicator.completed span {
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Star Rating Buttons */
+.star-btn {
+  cursor: pointer;
+  outline: none;
+  background: transparent;
+  border: none;
+  padding: 4px;
+}
+
+.star-btn.active {
+  color: #f59e0b !important; /* amber-500 */
+}
+
+/* Inputs & Form controls */
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  accent-color: #059669;
+}
+
+/* Glassmorphism touches */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Scrollbar polish */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
