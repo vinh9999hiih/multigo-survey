@@ -26,6 +26,13 @@ const state = {
 const STORAGE_KEY_RESPONSES = 'multigo_survey_responses_v1';
 const STORAGE_KEY_WEBHOOK = 'multigo_survey_webhook_url';
 
+// Auto-sync webhook URL
+if (DEFAULT_GOOGLE_SHEET_WEBHOOK) {
+  try {
+    localStorage.setItem(STORAGE_KEY_WEBHOOK, DEFAULT_GOOGLE_SHEET_WEBHOOK);
+  } catch (e) {}
+}
+
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
   loadResponsesFromStorage();
@@ -352,9 +359,11 @@ async function submitSurvey() {
       await fetch(webhookUrl, {
         method: 'POST',
         mode: 'no-cors',
+        keepalive: true,
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(record)
       });
+      console.log('✅ Survey sent to Google Sheet:', record.id);
     } catch (e) {
       console.warn('Webhook dispatch failed:', e);
     }

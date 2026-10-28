@@ -55,8 +55,8 @@
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Custom Styles with cache-buster -->
+  <link rel="stylesheet" href="style.css?v=20261028_2245">
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white">
 
@@ -833,6 +833,10 @@
           <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display mb-3">
             Gửi Khảo Sát Thành Công
           </h2>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold mb-4 shadow-xs">
+            <i class="fa-solid fa-cloud-arrow-up text-emerald-600"></i>
+            <span>Đã tự động gửi về Google Sheet</span>
+          </div>
           <p class="text-slate-600 text-sm sm:text-base max-w-lg mx-auto mb-6">
             Multigo xin chân thành cảm ơn những ý kiến đóng góp quý báu của bạn! Phản hồi của bạn đã được ghi nhận vào hệ thống an toàn.
           </p>
@@ -1081,8 +1085,8 @@
     </div>
   </footer>
 
-  <!-- App Logic Scripts -->
-  <script src="app.js"></script>
+  <!-- App Logic Scripts with cache-buster -->
+  <script src="app.js?v=20261028_2245"></script>
 </body>
 </html>
 
